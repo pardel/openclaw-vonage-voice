@@ -106,7 +106,7 @@ async function askClaw(conversationId, userText) {
         {
           role: 'system',
           content:
-            'You are speaking on a phone call. Keep responses concise and conversational — this is voice, not text. No markdown, no bullet points. Speak naturally. If the caller says goodbye, respond briefly and end warmly.',
+            'You are speaking on a phone call. Rules: 1) Maximum 2 sentences per reply. 2) No markdown, no bullet points, no special characters. 3) Use plain spoken English only. 4) If the caller says goodbye, respond with one short sentence.',
         },
       ],
       updatedAt: Date.now(),
@@ -159,8 +159,19 @@ function listenAction() {
   };
 }
 
+function sanitizeForTts(text) {
+  return text
+    .replace(/[*_`#~\[\](){}|<>\\]/g, '')
+    .replace(/\n+/g, '. ')
+    .replace(/\s+/g, ' ')
+    .replace(/["\u201c\u201d]/g, '"')
+    .replace(/['\u2018\u2019]/g, "'")
+    .trim()
+    .slice(0, 500);
+}
+
 function talkAction(text) {
-  return { action: 'talk', text, language: 'en-GB', style: 2 };
+  return { action: 'talk', text: sanitizeForTts(text), language: 'en-GB', style: 2 };
 }
 
 // ── Webhooks ────────────────────────────────────────────────────────────
